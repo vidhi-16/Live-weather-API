@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet Map</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="{% static 'css/map.css' %}">
+</head>
+<body>
+
+	<div id="map" style="height: 100vh"></div>
+
+	<script>
+    if (navigator.geolocation) {
+
+      // Call getCurrentPosition with success and error callbacks
+      navigator.geolocation.getCurrentPosition(function(position) {
+
+        // Success callback
+        let lat = position.coords.latitude; 
+        let lng = position.coords.longitude;
+        console.log(position.coords.latitude);
+        // Do something with latitude and longitude
+        getMap(lat, lng);
+      }, function(error) {
+        
+        // Error callback
+        console.error(error);
+        alert(error.message)
+      })}
+      else{
+        let lat = 51.505;
+        let lng = -0.09;
+        getMap(lat, lng);
+      }
+    function getMap(lat, lng){
+      // Initialize map
+      var map = L.map('map').setView([lat, lng], 13);
+      var userMarker = L.marker([lat, lng]).addTo(map);
+
+      // Add tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Click event to get lat/lon
+      map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+        // alert("Latitude: " + lat + ", Longitude: " + lng); 
+
+        userMarker.setLatLng([lat, lng]).bindPopup(`<div class="buttons">
+  <a class="blob-btn" role="button" href="{% url 'get_weather' %}?lat=${lat}&lng=${lng}">
+    Weather Info
+    <span class="blob-btn__inner">
+      <span class="blob-btn__blobs">
+        <span class="blob-btn__blob"></span>
+        <span class="blob-btn__blob"></span>
+        <span class="blob-btn__blob"></span>
+        <span class="blob-btn__blob"></span>
+      </span>
+    </span>
+  </a>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <defs>
+    <filter id="goo">
+      <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10"></feGaussianBlur>
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7" result="goo"></feColorMatrix>
+      <feBlend in2="goo" in="SourceGraphic" result="mix"></feBlend>
+    </filter>
+  </defs>
+</svg>`);
+        console.log(lat, lng)
+      });
+    }
+
+	</script>
+
+</body>
+</html>
